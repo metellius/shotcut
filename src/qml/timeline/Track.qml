@@ -28,6 +28,7 @@ Rectangle {
     property real timeScale: 1.0
     property bool placeHolderAdded: false
     property bool isCurrentTrack: false
+    property bool isHeld: false
     property var selection
 
     signal clipClicked(var clip, var track)

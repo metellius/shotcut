@@ -28,10 +28,15 @@ Rectangle {
     property bool isMute
     property bool isHidden
     property int isComposite
+    property int isHeld
     property bool isVideo
     property bool selected: false
     property bool current: false
     signal clicked()
+
+    function pulseHoldButton() {
+        holdButtonAnim.restart();
+    }
 
     SystemPalette { id: activePalette }
     color: selected ? selectedTrackColor : (index % 2)? activePalette.alternateBase : activePalette.base
@@ -202,6 +207,46 @@ Rectangle {
                     acceptedButtons: Qt.RightButton
                     onClicked: compositeMenu.popup()
                 }
+            }
+
+            CheckBox {
+                id: holdButton
+                style: CheckBoxStyle {
+                    indicator: Rectangle {
+                        implicitWidth: 16
+                        implicitHeight: 16
+                        radius: 2
+                        color: isHeld ? activePalette.highlight : trackHeadRoot.color
+                        border.color: activePalette.shadow
+                        border.width: 1
+                        Text {
+                            id: compositeText
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: qsTr('H', 'Hold')
+                            color: isHeld ? activePalette.highlightedText : activePalette.windowText
+                        }
+                    }
+                }
+                SequentialAnimation {
+                    id: holdButtonAnim
+                    loops: 2
+                    NumberAnimation {
+                        target: holdButton
+                        property: "scale"
+                        to: 1.8
+                        duration: 200
+                    }
+                    NumberAnimation {
+                        target: holdButton
+                        property: "scale"
+                        to: 1
+                        duration: 200
+                    }
+                }
+
+                onClicked: timeline.setTrackHeld(index, checkedState)
+                Shotcut.ToolTip { text: qsTr('Hold track') }
             }
         }
     }

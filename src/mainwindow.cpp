@@ -1089,6 +1089,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         else
             handled = false;
         break;
+    case Qt::Key_H:
+        m_timelineDock->setTrackHeld(m_timelineDock->currentTrack(), m_timelineDock->isTrackHeld(m_timelineDock->currentTrack()) ? Qt::Unchecked : Qt::Checked);
+        break;
     case Qt::Key_J:
         if (m_isKKeyPressed)
             m_player->seek(m_player->position() - 1);

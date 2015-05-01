@@ -128,11 +128,13 @@ Rectangle {
                             isMute: model.mute
                             isHidden: model.hidden
                             isComposite: model.composite
+                            isHeld: model.held
                             isVideo: !model.audio
                             width: headerWidth
                             height: model.audio? multitrack.trackHeight : multitrack.trackHeight * 2
                             selected: false
                             current: index === currentTrack
+                            onIsHeldChanged: tracksRepeater.itemAt(index).isHeld = isHeld
                             onClicked: {
                                 root.selection = []
                                 currentTrack = index
@@ -474,6 +476,20 @@ Rectangle {
             onCheckSnap: {
                 for (var i = 0; i < tracksRepeater.count; i++)
                     tracksRepeater.itemAt(i).snapClip(clip)
+            }
+            Rectangle {
+                visible: parent.isHeld
+                height: parent.height
+                width: tracksContainer.width
+                color: "black"
+                opacity: 0.3
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        mouse.accepted = true;
+                        trackHeaderRepeater.itemAt(index).pulseHoldButton()
+                    }
+                }
             }
         }
     }
