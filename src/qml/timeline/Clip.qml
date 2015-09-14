@@ -281,6 +281,7 @@ Rectangle {
         drag.axis: Drag.XAxis
         property int startX
         onPressed: {
+            console.log();
             root.stopScrolling = true
             originalX = parent.x
             originalTrackIndex = trackIndex

@@ -106,8 +106,10 @@ Rectangle {
                 width: nameEdit.width
                 hoverEnabled: true
                 onClicked: {
+                    console.log();
                     nameEdit.visible = true
                     nameEdit.selectAll()
+                    //nameEdit.forceActiveFocus()
                 }
             }
             Label {

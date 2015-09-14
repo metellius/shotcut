@@ -53,13 +53,12 @@ void QmlUtilities::registerCommonTypes()
     qmlRegisterType<ColorWheelItem>("Shotcut.Controls", 1, 0, "ColorWheelItem");
 }
 
-void QmlUtilities::setCommonProperties(QQuickView* qview)
+void QmlUtilities::setCommonProperties(QQmlContext* context)
 {
-    QQmlContext* rootContext = qview->rootContext();
-    rootContext->setContextProperty("settings", &ShotcutSettings::singleton());
-    rootContext->setContextProperty("application", &QmlApplication::singleton());
-    rootContext->setContextProperty("profile", &QmlProfile::singleton());
-    rootContext->setContextProperty("view", new QmlView(qview));
+    context->setContextProperty("settings", &ShotcutSettings::singleton());
+    context->setContextProperty("application", &QmlApplication::singleton());
+    context->setContextProperty("profile", &QmlProfile::singleton());
+    context->setContextProperty("view", new QmlView(0));
 }
 
 QDir QmlUtilities::qmlDir()

@@ -52,7 +52,7 @@ FiltersDock::FiltersDock(MetadataModel* metadataModel, AttachedFiltersModel* att
     scrollArea->setWidget(container);
     setWidget(scrollArea);
 
-    QmlUtilities::setCommonProperties(&m_qview);
+    QmlUtilities::setCommonProperties(m_qview.rootContext());
     m_qview.rootContext()->setContextProperty("metadatamodel", metadataModel);
     m_qview.rootContext()->setContextProperty("attachedfiltersmodel", attachedModel);
     setCurrentFilter(0, 0, -1);

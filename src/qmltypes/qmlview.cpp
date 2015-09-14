@@ -36,6 +36,8 @@ QmlView::QmlView(QQuickView* qview)
 
 QPoint QmlView::pos()
 {
+    if (!m_qview)
+        return QPoint();
     return m_qview->mapToGlobal(QPoint(0,0));
 }
 
