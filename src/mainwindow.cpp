@@ -1607,6 +1607,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
         if (!m_htmlEditor || m_htmlEditor->close()) {
             writeSettings();
             event->accept();
+            emit aboutToShutDown();
             QApplication::exit(m_exitCode);
             return;
         }
