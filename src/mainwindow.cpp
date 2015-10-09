@@ -1564,6 +1564,8 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         break;
     case Qt::Key_F1:
         qDebug() << "Current focusWidget:" << QApplication::focusWidget();
+        qDebug() << "Current focusObject:" << QApplication::focusObject();
+        qDebug() << "Current focusWindow:" << QApplication::focusWindow();
         break;
     default:
         break;
