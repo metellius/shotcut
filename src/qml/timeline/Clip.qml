@@ -285,6 +285,7 @@ Rectangle {
             originalX = parent.x
             originalTrackIndex = trackIndex
             originalClipIndex = index
+            //console.log(parent.x);
             startX = parent.x
             clipRoot.clicked(clipRoot)
         }
@@ -530,29 +531,31 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.SizeHorCursor
-            drag.target: parent
-            drag.axis: Drag.XAxis
-            property int startX
+            //drag.target: parent
+            //drag.axis: Drag.XAxis
+            property int startXEnd
 
             onPressed: {
                 root.stopScrolling = true
-                startX = parent.x
+                startXEnd = clipRoot.mapToItem(null, clipRoot.width, 0).x
                 originalX = 0 // reusing originalX to accumulate delta for bubble help
-                parent.anchors.left = undefined
+                //parent.anchors.left = undefined
             }
             onReleased: {
                 root.stopScrolling = false
-                parent.anchors.left = clipRoot.left
+                //parent.anchors.left = clipRoot.left
                 clipRoot.trimmedIn(clipRoot)
                 parent.opacity = 0
             }
             onPositionChanged: {
+                //console.log(mapToItem(null, mouse.x, 0).x);
+                console.log("current length: " + clipRoot.width / timeScale);
                 if (mouse.buttons === Qt.LeftButton) {
-                    var delta = Math.round((parent.x - startX) / timeScale)
-                    if (Math.abs(delta) > 0) {
-                        if (clipDuration + originalX + delta > 0)
-                            originalX += delta
-                        clipRoot.trimmingIn(clipRoot, delta, mouse)
+                    var newLength = Math.round((startXEnd - clipRoot.mapToItem(null, mouse.x, 0).x) / timeScale)
+                    if (newLength > 0) {
+                        //if (clipDuration + originalX + delta > 0)
+                            //originalX += delta
+                        clipRoot.trimmingIn(clipRoot, newLength, mouse)
                     }
                 }
             }

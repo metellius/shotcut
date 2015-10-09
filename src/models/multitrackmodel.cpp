@@ -340,7 +340,7 @@ void MultitrackModel::setTrackLock(int row, bool lock)
     }
 }
 
-bool MultitrackModel::trimClipInValid(int trackIndex, int clipIndex, int delta)
+bool MultitrackModel::trimClipInValid(int trackIndex, int clipIndex, int newLength)
 {
     bool result = true;
     int i = m_trackList.at(trackIndex).mlt_index;
@@ -348,8 +348,9 @@ bool MultitrackModel::trimClipInValid(int trackIndex, int clipIndex, int delta)
     if (track) {
         Mlt::Playlist playlist(*track);
         QScopedPointer<Mlt::ClipInfo> info(playlist.clip_info(clipIndex));
+        int delta = info->frame_count - newLength;
 
-        if (!info || (info->frame_in + delta) < 0 || (info->frame_in + delta) > info->frame_out)
+        if (!info || newLength <= 0)
             result = false;
         else if (delta < 0 && clipIndex <= 0)
             result = false;
@@ -361,11 +362,12 @@ bool MultitrackModel::trimClipInValid(int trackIndex, int clipIndex, int delta)
     return result;
 }
 
-int MultitrackModel::trimClipIn(int trackIndex, int clipIndex, int delta, bool ripple)
+int MultitrackModel::trimClipIn(int trackIndex, int clipIndex, int newLength, bool ripple)
 {
     int result = clipIndex;
     QList<int> tracksToRemoveRegionFrom;
     int whereToRemoveRegion = -1;
+    int delta = 0;
 
     for (int i = 0; i < m_trackList.count(); ++i) {
         int mltIndex = m_trackList.at(i).mlt_index;
@@ -389,6 +391,8 @@ int MultitrackModel::trimClipIn(int trackIndex, int clipIndex, int delta, bool r
 
         Mlt::Playlist playlist(*track);
         QScopedPointer<Mlt::ClipInfo> info(playlist.clip_info(clipIndex));
+        delta = info->frame_count - newLength;
+        qDebug() << "length is" << info->frame_count;
 
         Q_ASSERT(whereToRemoveRegion == -1);
         whereToRemoveRegion = info->start + delta;

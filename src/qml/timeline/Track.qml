@@ -114,8 +114,8 @@ Rectangle {
             }
             onTrimmingIn: {
                 var originalDelta = delta
-                if (!(mouse.modifiers & Qt.AltModifier) && toolbar.snap)
-                    delta = Logic.snapTrimIn(clip, delta)
+                //if (!(mouse.modifiers & Qt.AltModifier) && toolbar.snap)
+                    //delta = Logic.snapTrimIn(clip, delta)
                 if (delta != 0) {
                     if (timeline.trimClipIn(trackRoot.DelegateModel.itemsIndex,
                                             clip.DelegateModel.itemsIndex, delta, false)) {
