@@ -122,9 +122,12 @@ MainWindow::MainWindow()
     }
 #endif
 
-    if (!qgetenv("OBSERVE_FOCUS").isEmpty())
+    if (!qgetenv("OBSERVE_FOCUS").isEmpty()) {
         connect(qApp, &QApplication::focusChanged,
                 this, &MainWindow::onFocusChanged);
+        connect(qApp, &QGuiApplication::focusObjectChanged,
+                this, &MainWindow::onFocusObjectChanged);
+    }
 
     if (!qgetenv("EVENT_DEBUG").isEmpty())
         QInternal::registerCallback(QInternal::EventNotifyCallback, eventDebugCallback);
@@ -408,6 +411,14 @@ MainWindow::MainWindow()
     m_timelineDock->setFocusPolicy(Qt::StrongFocus);
 
     qDebug() << "end";
+}
+
+void MainWindow::onFocusObjectChanged(QObject *obj) const
+{
+    qDebug() << "Focusobject changed";
+    qDebug() << "Current focusWidget:" << QApplication::focusWidget();
+    qDebug() << "Current focusObject:" << QApplication::focusObject();
+    qDebug() << "Current focusWindow:" << QApplication::focusWindow();
 }
 
 void MainWindow::moveNavigationPositionToCurrentSelection()
@@ -2654,7 +2665,10 @@ void MainWindow::on_actionGammaRec709_triggered(bool checked)
 
 void MainWindow::onFocusChanged(QWidget *, QWidget * now) const
 {
-    qDebug() << "Focuswidget changed to" << now;
+    qDebug() << "Focuswidget changed";
+    qDebug() << "Current focusWidget:" << QApplication::focusWidget();
+    qDebug() << "Current focusObject:" << QApplication::focusObject();
+    qDebug() << "Current focusWindow:" << QApplication::focusWindow();
 }
 
 void MainWindow::on_actionScrubAudio_triggered(bool checked)
