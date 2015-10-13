@@ -67,6 +67,7 @@ SOURCES += main.cpp\
     qmltypes/qmlhtmleditor.cpp \
     qmltypes/qmlmetadata.cpp \
     qmltypes/qmlprofile.cpp \
+    qmltypes/hovereventlistener.cpp \
     htmleditor/htmleditor.cpp \
     htmleditor/highlighter.cpp \
     settings.cpp \
@@ -165,6 +166,7 @@ HEADERS  += mainwindow.h \
     qmltypes/qmlhtmleditor.h \
     qmltypes/qmlmetadata.h \
     qmltypes/qmlprofile.h \
+    qmltypes/hovereventlistener.h \
     htmleditor/htmleditor.h \
     htmleditor/highlighter.h \
     settings.h \
@@ -307,6 +309,7 @@ OTHER_FILES += \
     qml/filters/sharpen/ui_movit.qml \
     qml/modules/Shotcut/Controls/ToolTip.qml \
     qml/modules/Shotcut/Controls/UndoButton.qml \
+    qml/playlist/playlist.qml \
     qml/timeline/timeline.qml \
     qml/timeline/TrackHead.qml \
     qml/timeline/Track.qml \
@@ -483,6 +486,7 @@ lupdate_hack {
     qml/filters/sharpen/ui_movit.qml \
     qml/modules/Shotcut/Controls/ToolTip.qml \
     qml/modules/Shotcut/Controls/UndoButton.qml \
+    qml/playlist/playlist.qml \
     qml/timeline/timeline.qml \
     qml/timeline/TimelineToolbar.qml \
     qml/timeline/TrackHead.qml \

@@ -102,6 +102,7 @@ Rectangle {
         anchors.bottomMargin: parent.height / 2
         fillMode: Image.PreserveAspectFit
         source: (isAudio || isBlank || isTransition)? '' : 'image://thumbnail/' + mltService + '/' + clipResource + '#' + outPoint
+        onSourceChanged: console.log("clip source changed to " + source);
     }
 
     Image {

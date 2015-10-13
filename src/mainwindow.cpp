@@ -390,7 +390,6 @@ MainWindow::MainWindow()
 
     // connect video widget signals
     Mlt::GLWidget* videoWidget = (Mlt::GLWidget*) &(MLT);
-    connect(videoWidget, SIGNAL(dragStarted()), m_playlistDock, SLOT(onPlayerDragStarted()));
     connect(videoWidget, SIGNAL(seekTo(int)), m_player, SLOT(seek(int)));
     connect(videoWidget, SIGNAL(gpuNotSupported()), this, SLOT(onGpuNotSupported()));
     connect(videoWidget, SIGNAL(frameDisplayed(const SharedFrame&)), m_scopeController, SLOT(onFrameDisplayed(const SharedFrame&)));
@@ -1319,7 +1318,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         if (event->modifiers() == Qt::ShiftModifier) {
             m_playlistDock->show();
             m_playlistDock->raise();
-            m_playlistDock->on_actionAppendCut_triggered();
+            m_playlistDock->appendCut();
         } else {
             m_timelineDock->show();
             m_timelineDock->raise();
@@ -1408,7 +1407,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         if (event->modifiers() == Qt::ShiftModifier) {
             m_playlistDock->show();
             m_playlistDock->raise();
-            m_playlistDock->on_actionUpdate_triggered();
+            m_playlistDock->replaceCut();
         } else {
             m_timelineDock->show();
             m_timelineDock->raise();
@@ -1515,7 +1514,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         if (event->modifiers() == Qt::ShiftModifier) {
             m_playlistDock->show();
             m_playlistDock->raise();
-            m_playlistDock->on_removeButton_clicked();
+            m_playlistDock->removeCut();
         } else {
             m_timelineDock->show();
             m_timelineDock->raise();
@@ -1534,7 +1533,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         } else {
             m_playlistDock->show();
             m_playlistDock->raise();
-            m_playlistDock->on_removeButton_clicked();
+            m_playlistDock->removeCut();
         }
         break;
     case Qt::Key_Y:
@@ -1548,7 +1547,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         if (event->modifiers() == Qt::ShiftModifier) {
             m_playlistDock->show();
             m_playlistDock->raise();
-            m_playlistDock->on_removeButton_clicked();
+            m_playlistDock->removeCut();
         } else if (multitrack() && event->modifiers() == Qt::NoModifier) {
             m_timelineDock->show();
             m_timelineDock->raise();
@@ -1570,6 +1569,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
                 m_timelineDock->makeTracksTaller();
             else
                 m_timelineDock->zoomIn();
+        }
+        break;
+    case Qt::Key_F2:
+        if (m_playlistDock->isVisible()) {
+            m_playlistDock->setFocus();
+            m_playlistDock->startEditingComment();
         }
         break;
     case Qt::Key_Enter: // Seek to current playlist item

@@ -38,6 +38,7 @@ public:
     explicit QmlView(QWindow* qview);
     QPoint pos();
     Q_INVOKABLE void applyQTBUG47714Workaround(QObject * item);
+    Q_INVOKABLE void releaseMouseGrab(QQuickItem * clickObject);
 
 private:
     QWindow* m_qview;

@@ -27,11 +27,20 @@
 #include <private/qquickitem_p.h>
 #include <private/qsgrenderer_p.h>
 #include <private/qquickcanvasitem_p.h>
+#include <private/qquickwindow_p.h>
 
 QmlView::QmlView(QWindow* qview)
     : QObject(qview)
     , m_qview(qview)
 {
+}
+
+void QmlView::releaseMouseGrab(QQuickItem * clickObject)
+{
+    QQuickWindow * w = qobject_cast<QQuickWindow*>(clickObject->window());
+    Q_ASSERT(w);
+    QQuickWindowPrivate * windowPrivate = QQuickWindowPrivate::get(w);
+    windowPrivate->setMouseGrabber(0);
 }
 
 QPoint QmlView::pos()

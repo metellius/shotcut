@@ -85,6 +85,7 @@ Rectangle {
     DropArea {
         anchors.fill: parent
         onEntered: {
+            console.log();
             if (drag.formats.indexOf('application/mlt+xml') >= 0)
                 drag.acceptProposedAction()
         }

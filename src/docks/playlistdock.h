@@ -20,30 +20,44 @@
 #define PLAYLISTDOCK_H
 
 #include <QDockWidget>
+#include <QQuickWidget>
 #include <QUndoCommand>
 #include "models/playlistmodel.h"
-
-namespace Ui {
-    class PlaylistDock;
-}
 
 class PlaylistDock : public QDockWidget
 {
     Q_OBJECT
+    Q_PROPERTY(QPoint widgetPos READ widgetPos)
+    Q_PROPERTY(int activeClipActions READ activeClipActions NOTIFY clipActionsEvaluationRequested)
+    Q_ENUMS(ClipActions)
 
 public:
+    enum ClipActions
+    {
+        InsertCut = 0x1,
+        InsertBlank = 0x2,
+        Goto = 0x4,
+        Open = 0x8,
+        Update = 0x10,
+        Remove = 0x20
+    };
     explicit PlaylistDock(QWidget *parent = 0);
     ~PlaylistDock();
     PlaylistModel* model() {
         return &m_model;
     }
     int position();
+    int currentIndex() const;
+    QPoint widgetPos() const;
+    int activeClipActions() const;
+    void startEditingComment();
 
 signals:
     void clipOpened(void* producer);
     void itemActivated(int start);
     void showStatusMessage(QString);
     void addAllTimeline(Mlt::Playlist*);
+    void clipActionsEvaluationRequested();
 
 public slots:
     void incrementIndex();
@@ -53,57 +67,30 @@ public slots:
     void moveClipDown();
     void on_actionOpen_triggered();
     void on_actionInsertCut_triggered();
-    void on_actionAppendCut_triggered();
-    void on_actionUpdate_triggered();
-    void on_removeButton_clicked();
+    void on_actionInsertBlank_triggered();
+    void appendCut();
+    void replaceCut();
+    void removeCut();
+    void addAll();
+    void on_actionGoto_triggered();
+    void removeAll();
     void setUpdateButtonEnabled(bool modified);
+    void openClipAt(int row);
+    void updateCut();
+    void reevaluateClipActions();
+    QVariantMap handleDrop(QVariantMap data);
 
 private slots:
-    void on_menuButton_clicked();
-
-    void on_actionInsertBlank_triggered();
-
+    void on_addButton_clicked();
     void on_actionAppendBlank_triggered();
-
-    void on_tableView_customContextMenuRequested(const QPoint &pos);
-
-    void on_tableView_doubleClicked(const QModelIndex &index);
-
-    void on_actionGoto_triggered();
-
-    void on_actionRemoveAll_triggered();
-
     void onPlaylistCreated();
-
     void onPlaylistLoaded();
-
     void onPlaylistCleared();
-
-    void onDropped(const QMimeData *data, int row);
-
     void onMoveClip(int from, int to);
 
-    void onPlayerDragStarted();
-
-    void on_addButton_clicked();
-
-    void on_actionThumbnailsHidden_triggered(bool checked);
-
-    void on_actionLeftAndRight_triggered(bool checked);
-
-    void on_actionTopAndBottom_triggered(bool checked);
-
-    void on_actionInOnlySmall_triggered(bool checked);
-
-    void on_actionInOnlyLarge_triggered(bool checked);
-
-    void on_actionAddToTimeline_triggered();
-
-    void on_updateButton_clicked();
-
 private:
-    Ui::PlaylistDock *ui;
     PlaylistModel m_model;
+    QQuickWidget m_quickWidget;
     int m_defaultRowHeight;
 };
 

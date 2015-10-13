@@ -25,8 +25,10 @@
 #include "qmltypes/qmlfile.h"
 #include "qmltypes/qmlhtmleditor.h"
 #include "qmltypes/qmlmetadata.h"
+#include "qmltypes/hovereventlistener.h"
 #include "settings.h"
 #include "models/metadatamodel.h"
+#include "docks/playlistdock.h"
 #include <QCoreApplication>
 #include <QSysInfo>
 #include <QCursor>
@@ -48,8 +50,11 @@ void QmlUtilities::registerCommonTypes()
     // MetadataModel is registered to access its MetadataFilter enum.
     qmlRegisterUncreatableType<MetadataModel>("org.shotcut.qml", 1, 0, "MetadataModel",
                                               "You cannot create a MetadataModel from QML.");
+    qmlRegisterType<HoverEventListener>("org.shotcut.qml", 1, 0, "HoverEventListener");
     qmlRegisterType<ColorPickerItem>("Shotcut.Controls", 1, 0, "ColorPickerItem");
     qmlRegisterType<ColorWheelItem>("Shotcut.Controls", 1, 0, "ColorWheelItem");
+    qmlRegisterUncreatableType<PlaylistDock>("org.shotcut.qml", 1, 0, "PlaylistDock",
+        "You cannot create a PlaylistDock from QML.");
 }
 
 void QmlUtilities::setCommonProperties(QQmlContext* context)

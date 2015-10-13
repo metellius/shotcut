@@ -33,6 +33,21 @@
 #include "settings.h"
 #include "database.h"
 
+enum PlaylistRoles
+{
+    ResourceRole = Qt::UserRole + 1,
+    ServiceRole,
+    InPointRole,
+    DurationRole,
+    TotalDurationRole,
+    StartRole,
+    CommentRole,
+    ReadableInPointRole,
+    ReadableDurationRole,
+    ReadableStartRole
+};
+
+
 static void deleteQImage(QImage* image)
 {
     delete image;
@@ -163,14 +178,12 @@ int PlaylistModel::columnCount(const QModelIndex& /*parent*/) const
 QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 {
     if (!m_playlist) return QVariant();
+
+    QScopedPointer<Mlt::ClipInfo> info(m_playlist->clip_info(index.row()));
+
     switch (role) {
-    case Qt::DisplayRole:
-    case Qt::ToolTipRole: {
-        QScopedPointer<Mlt::ClipInfo> info(m_playlist->clip_info(index.row()));
-        switch (index.column()) {
-        case COLUMN_INDEX:
-            return QString::number(index.row() + 1);
-        case COLUMN_RESOURCE: {
+        case Qt::DisplayRole:
+        case ResourceRole: {
             QString result = QString::fromUtf8(info->resource);
             if (result == "<producer>" && info->producer
                     && info->producer->is_valid() && info->producer->get("mlt_service"))
@@ -180,81 +193,100 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
                 result = Util::baseName(result);
             return result;
         }
-        case COLUMN_IN:
-            if (info->producer && info->producer->is_valid()) {
-                return info->producer->frames_to_time(info->frame_in);
-            } else
-                return "";
-        case COLUMN_DURATION:
-            if (info->producer && info->producer->is_valid()) {
-                return info->producer->frames_to_time(info->frame_count);
-            } else
-                return "";
-        case COLUMN_START:
-            if (info->producer && info->producer->is_valid()) {
-                return info->producer->frames_to_time(info->start);
-            }
-            else
-                return "";
+        case ServiceRole: {
+            QString result = QString::fromUtf8(info->resource);
+            if (info->producer && info->producer->is_valid())
+                return QString::fromUtf8(info->producer->get("mlt_service"));
+        }
+        case CommentRole:
+            if (!info->producer)
+                return QString();
+            return QString::fromUtf8(info->producer->get(kCommentProperty));
+        case InPointRole:
+            return info->producer && info->producer->is_valid()
+                ? info->frame_in
+                : 0;
+        case ReadableInPointRole:
+            return info->producer && info->producer->is_valid()
+                ? info->producer->frames_to_time(info->frame_count)
+                : "";
+        case TotalDurationRole:
+            return info->producer && info->producer->is_valid()
+                ? info->length
+                : 0;
+        case DurationRole:
+            return info->producer && info->producer->is_valid()
+                ? info->frame_count
+                : 0;
+        case ReadableDurationRole:
+            return info->producer && info->producer->is_valid()
+                ? info->producer->frames_to_time(info->frame_count)
+                : "";
+        case StartRole:
+            return info->producer && info->producer->is_valid()
+                ? info->start
+                : 0;
+        case ReadableStartRole:
+            return info->producer && info->producer->is_valid()
+                ? info->producer->frames_to_time(info->start)
+                : "";
         default:
             break;
         }
-        break;
-    }
-    case Qt::DecorationRole:
-        if (index.column() == COLUMN_THUMBNAIL) {
-            QScopedPointer<Mlt::Producer> producer(m_playlist->get_clip(index.row()));
-            Mlt::Producer parent(producer->get_parent());
-            int width = THUMBNAIL_HEIGHT * MLT.profile().dar();
-            QString setting = Settings.playlistThumbnails();
-            QImage image;
+    /* case Qt::DecorationRole: */
+    /*     if (index.column() == COLUMN_THUMBNAIL) { */
+    /*         QScopedPointer<Mlt::Producer> producer(m_playlist->get_clip(index.row())); */
+    /*         Mlt::Producer parent(producer->get_parent()); */
+    /*         int width = THUMBNAIL_HEIGHT * MLT.profile().dar(); */
+    /*         QString setting = Settings.playlistThumbnails(); */
+    /*         QImage image; */
 
-            if (setting == "wide")
-                image = QImage(width * 2, THUMBNAIL_HEIGHT, QImage::Format_ARGB32_Premultiplied);
-            else if (setting == "tall")
-                image = QImage(width, THUMBNAIL_HEIGHT * 2, QImage::Format_ARGB32_Premultiplied);
-            else if (setting == "large")
-                image = QImage(width * 2, THUMBNAIL_HEIGHT * 2, QImage::Format_ARGB32_Premultiplied);
-            else
-                image = QImage(width, THUMBNAIL_HEIGHT, QImage::Format_ARGB32_Premultiplied);
+    /*         if (setting == "wide") */
+    /*             image = QImage(width * 2, THUMBNAIL_HEIGHT, QImage::Format_ARGB32_Premultiplied); */
+    /*         else if (setting == "tall") */
+    /*             image = QImage(width, THUMBNAIL_HEIGHT * 2, QImage::Format_ARGB32_Premultiplied); */
+    /*         else if (setting == "large") */
+    /*             image = QImage(width * 2, THUMBNAIL_HEIGHT * 2, QImage::Format_ARGB32_Premultiplied); */
+    /*         else */
+    /*             image = QImage(width, THUMBNAIL_HEIGHT, QImage::Format_ARGB32_Premultiplied); */
 
-            if (parent.is_valid() && parent.get_data(kThumbnailInProperty)) {
-                QPainter painter(&image);
-                image.fill(QColor(Qt::black).rgb());
+    /*         if (parent.is_valid() && parent.get_data(kThumbnailInProperty)) { */
+    /*             QPainter painter(&image); */
+    /*             image.fill(QColor(Qt::black).rgb()); */
 
-                // draw the in thumbnail
-                QImage* thumb = (QImage*) parent.get_data(kThumbnailInProperty);
-                QRect rect = thumb->rect();
-                if (setting != "large") {
-                    rect.setWidth(width);
-                    rect.setHeight(THUMBNAIL_HEIGHT);
-                }
-                painter.drawImage(rect, *thumb);
+    /*             // draw the in thumbnail */
+    /*             QImage* thumb = (QImage*) parent.get_data(kThumbnailInProperty); */
+    /*             QRect rect = thumb->rect(); */
+    /*             if (setting != "large") { */
+    /*                 rect.setWidth(width); */
+    /*                 rect.setHeight(THUMBNAIL_HEIGHT); */
+    /*             } */
+    /*             painter.drawImage(rect, *thumb); */
 
-                if ((setting == "wide" || setting == "tall") && parent.get_data(kThumbnailOutProperty)) {
-                    // draw the out thumbnail
-                    thumb = (QImage*) parent.get_data(kThumbnailOutProperty);
-                    if (setting == "wide") {
-                        rect.setWidth(width * 2);
-                        rect.setLeft(width);
-                    }
-                    else if (setting == "tall") {
-                        rect.setHeight(THUMBNAIL_HEIGHT * 2);
-                        rect.setTop(THUMBNAIL_HEIGHT);
-                    }
-                    painter.drawImage(rect, *thumb);
-                }
-                painter.end();
-            }
-            else {
-                image.fill(QApplication::palette().base().color().rgb());
-            }
-            return image;
-        }
-        break;
-    default:
-        break;
-    }
+    /*             if ((setting == "wide" || setting == "tall") && parent.get_data(kThumbnailOutProperty)) { */
+    /*                 // draw the out thumbnail */
+    /*                 thumb = (QImage*) parent.get_data(kThumbnailOutProperty); */
+    /*                 if (setting == "wide") { */
+    /*                     rect.setWidth(width * 2); */
+    /*                     rect.setLeft(width); */
+    /*                 } */
+    /*                 else if (setting == "tall") { */
+    /*                     rect.setHeight(THUMBNAIL_HEIGHT * 2); */
+    /*                     rect.setTop(THUMBNAIL_HEIGHT); */
+    /*                 } */
+    /*                 painter.drawImage(rect, *thumb); */
+    /*             } */
+    /*             painter.end(); */
+    /*         } */
+    /*         else { */
+    /*             image.fill(QApplication::palette().base().color().rgb()); */
+    /*         } */
+    /*         return image; */
+    /*     } */
+    /*     break; */
+    /* default: */
+    /*     break; */
+    /* } */
     return QVariant();
 }
 
@@ -321,15 +353,24 @@ QStringList PlaylistModel::mimeTypes() const
 QMimeData *PlaylistModel::mimeData(const QModelIndexList &indexes) const
 {
     QMimeData *mimeData = new QMimeData;
-    Mlt::ClipInfo* info = m_playlist->clip_info(indexes.first().row());
+    QString xml = mltXmlForRow(indexes.first().row());
+    if (!xml.isEmpty())
+        mimeData->setData(Mlt::XmlMimeType, xml.toUtf8());
+    return mimeData;
+}
+
+QString PlaylistModel::mltXmlForRow(int rowIndex) const
+{
+    Mlt::ClipInfo* info = m_playlist->clip_info(rowIndex);
+    QString ret;
     if (info) {
         Mlt::Producer* producer = info->producer;
         producer->set_in_and_out(info->frame_in, info->frame_out);
-        mimeData->setData(Mlt::XmlMimeType, MLT.XML(producer).toUtf8());
+        ret = MLT.XML(producer);
         producer->set_in_and_out(0, -1);
         delete info;
     }
-    return mimeData;
+    return ret;
 }
 
 bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
@@ -525,6 +566,7 @@ void PlaylistModel::close()
 
 void PlaylistModel::move(int from, int to)
 {
+    Q_ASSERT(from != to);
     if (!m_playlist) return;
     QModelIndex parentIndex(createIndex(0,0).parent());
     beginMoveRows(parentIndex, from, from, parentIndex, to);
@@ -588,5 +630,34 @@ void PlaylistModel::setPlaylist(Mlt::Playlist& playlist)
         if (Settings.playerGPU() && Settings.playlistThumbnails() != "hidden")
             refreshThumbnails();
         emit loaded();
+    }
+}
+
+QHash<int, QByteArray> PlaylistModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[Qt::DisplayRole] = "displayRole";
+    roles[ServiceRole] = "service";
+    roles[ResourceRole] = "resource";
+    roles[InPointRole] = "inPoint";
+    roles[DurationRole] = "duration";
+    roles[TotalDurationRole] = "totalDuration";
+    roles[CommentRole] = "comment";
+    roles[StartRole] = "start";
+    roles[ReadableInPointRole] = "readableInPoint";
+    roles[ReadableDurationRole] = "readableDuration";
+    roles[ReadableStartRole] = "readableStart";
+    return roles;
+}
+
+void PlaylistModel::setComment(const QString& comment, int row)
+{
+    if (!m_playlist)
+        return;
+
+    QScopedPointer<Mlt::ClipInfo> info(m_playlist->clip_info(row));
+    if (info && info->producer) {
+        info->producer->set(kCommentProperty, comment.toLatin1().constData());
+        emit dataChanged(createIndex(row, 0), createIndex(row, 0));
     }
 }

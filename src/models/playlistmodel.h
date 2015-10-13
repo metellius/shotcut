@@ -61,8 +61,11 @@ public:
     void createIfNeeded();
     void showThumbnail(int row);
     void refreshThumbnails();
-    Mlt::Playlist* playlist() { return m_playlist; }
+    Mlt::Playlist* playlist() const { return m_playlist; }
     void setPlaylist(Mlt::Playlist& playlist);
+    QHash<int, QByteArray> roleNames() const;
+    Q_INVOKABLE QString mltXmlForRow(int rowIndex) const;
+    Q_INVOKABLE void setComment(const QString& comment, int row);
 
 signals:
     void created();
