@@ -127,6 +127,8 @@ MainWindow::MainWindow()
                 this, &MainWindow::onFocusChanged);
         connect(qApp, &QGuiApplication::focusObjectChanged,
                 this, &MainWindow::onFocusObjectChanged);
+        connect(qApp, &QGuiApplication::focusWindowChanged,
+                this, &MainWindow::onFocusWindowChanged);
     }
 
     if (!qgetenv("EVENT_DEBUG").isEmpty())
@@ -411,6 +413,14 @@ MainWindow::MainWindow()
     m_timelineDock->setFocusPolicy(Qt::StrongFocus);
 
     qDebug() << "end";
+}
+
+void MainWindow::onFocusWindowChanged(QWindow *window) const
+{
+    qDebug() << "Focuswindow changed";
+    qDebug() << "Current focusWidget:" << QApplication::focusWidget();
+    qDebug() << "Current focusObject:" << QApplication::focusObject();
+    qDebug() << "Current focusWindow:" << QApplication::focusWindow();
 }
 
 void MainWindow::onFocusObjectChanged(QObject *obj) const

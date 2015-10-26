@@ -227,6 +227,7 @@ private slots:
     void on_actionGammaRec709_triggered(bool checked);
     void onFocusChanged(QWidget *old, QWidget * now) const;
     void onFocusObjectChanged(QObject *obj) const;
+    void onFocusWindowChanged(QWindow *window) const;
     void moveNavigationPositionToCurrentSelection();
     void onAddAllToTimeline(Mlt::Playlist* playlist);
     void on_actionScrubAudio_triggered(bool checked);
