@@ -526,9 +526,10 @@ void PlaylistModel::close()
 void PlaylistModel::move(int from, int to)
 {
     if (!m_playlist) return;
+    QModelIndex parentIndex(createIndex(0,0).parent());
+    beginMoveRows(parentIndex, from, from, parentIndex, to);
     m_playlist->move(from, to);
-    emit dataChanged(createIndex(from, 0), createIndex(from, COLUMN_COUNT - 1));
-    emit dataChanged(createIndex(to, 0), createIndex(to, COLUMN_COUNT - 1));
+    endMoveRows();
     emit modified();
 }
 
