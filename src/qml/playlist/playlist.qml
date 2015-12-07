@@ -25,6 +25,24 @@ Rectangle {
             list.currentItem.startEditingComment();
         }
     }
+    function handleDrop(dropevent, index) {
+        var mimeData = {};
+        for (var idx in dropevent.formats)
+        {
+            var format = dropevent.formats[idx];
+            var data = dropevent.getDataAsString(format);
+            if (data.length == 0)
+            data = dropevent.getDataAsArrayBuffer(format);
+            mimeData[format] = data;
+        }
+        var data = {
+            urls: dropevent.urls,
+            index: index,
+            mimeData: mimeData
+        }
+        var result = playlistdock.handleDrop(data);
+        dropevent.accept();
+    }
 
     property color shotcutBlue: Qt.rgba(23/255, 92/255, 118/255, 1.0)
     property real zoomFactor: 1.0
@@ -149,7 +167,19 @@ Rectangle {
             }
         }
     }
+    DropArea {
+        anchors.fill: parent
+        onEntered: {
+            if (drag.formats.indexOf("application/playlist-rowindex") != -1)
+                drag.accept(Qt.MoveAction);
+            else
+                drag.accept(Qt.CopyAction);
+        }
+        onDropped: root.handleDrop(drop, 0);
+    }
+
     ScrollView {
+        id: scrollView
         __wheelAreaScrollSpeed: 70
         anchors {
             top: parent.top
@@ -252,9 +282,9 @@ Rectangle {
                         }
                     }
                     Loader {
-                        sourceComponent: largeThumbsItem.checked ? bigThumbComponent
+                        sourceComponent: bigThumbComponent ? bigThumbComponent
                                         : hiddenThumbsItem.checked ? hiddenThumbsComponent
-                                        : null
+                                        : bigThumbComponent
                         anchors.fill: parent
                     }
                     Component {
@@ -439,26 +469,21 @@ Rectangle {
                             drag.accept(Qt.CopyAction);
                     }
                     onDropped: {
-                        var mimeData = {};
-                        for (var idx in drop.formats)
-                        {
-                            var format = drop.formats[idx];
-                            var data = drop.getDataAsString(format);
-                            if (data.length == 0)
-                                data = drop.getDataAsArrayBuffer(format);
-                            mimeData[format] = data;
-                        }
-                        var data = {
-                            urls: drop.urls,
-                            index: draggingTopHalf ? index : index + 1,
-                            mimeData: mimeData
-                        }
-                        var result = playlistdock.handleDrop(data);
-                        drop.accept();
+                        root.handleDrop(drop, draggingTopHalf ? index : index + 1);
                     }
                 }
             }
         }
+    }
+    Label {
+        visible: list.count == 0
+        anchors.fill: scrollView
+        wrapMode: Text.WordWrap
+        anchors.margins: 10
+        text: qsTr("Double-click a playlist item to open it in the player.\n\n" +
+            "You can freely preview clips without necessarily adding them to the playlist or closing it.\n\n" +
+            "To trim or adjust a playlist item Double-click to open it, make the changes, and click the Update icon.\n\n" +
+            "Drag-n-drop to rearrange the items.")
     }
     RowLayout {
         id: toolBar
